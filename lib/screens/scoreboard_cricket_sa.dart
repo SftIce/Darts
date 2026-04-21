@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../logic/cricket_sa_logic.dart';
 import '../widgets/dartboard_widget.dart';
+import '../widgets/player_stats_panel.dart';
 
 class ScoreboardCricketSA extends StatefulWidget {
   final CricketSALogic cricketLogic;
@@ -17,6 +18,20 @@ class _ScoreboardCricketSAState extends State<ScoreboardCricketSA> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cricket SA')),
+      drawer: PlayerStatsPanel(
+        playerName: 'Mark',
+        gamesPlayed: 42,
+        winRate: 62,
+        highScore: 140,
+        threeDartAverage: 54.7,
+        recentMatches: [
+          {'game': 'Cricket SA', 'result': 'Won 192 - 165'},
+          {'game': '501', 'result': 'Lost 34 - 0'},
+          {'game': 'Shanghai', 'result': 'Won 72 - 65'},
+          {'game': 'Around the Clock', 'result': 'Won 20 - 18'},
+          {'game': 'Killer', 'result': 'Lost – Eliminated'},
+        ],
+      ),
       body: Row(
         children: [
           // Dartboard on the left
@@ -55,8 +70,7 @@ class _ScoreboardCricketSAState extends State<ScoreboardCricketSA> {
                           widget.cricketLogic.player2Marks[target] ?? '';
                       return ListTile(
                         title: Text('Target $target'),
-                        subtitle: Text(
-                            'P1: $marksP1   |   P2: $marksP2'),
+                        subtitle: Text('P1: $marksP1   |   P2: $marksP2'),
                       );
                     },
                   ),
