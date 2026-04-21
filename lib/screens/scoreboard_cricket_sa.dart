@@ -1,83 +1,212 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../logic/dart_math.dart';
+import '../logic/cricket_sa_logic.dart';
 
 class ScoreboardCricketSA extends StatefulWidget {
+  const ScoreboardCricketSA({super.key});
+
   @override
-  _ScoreboardCricketSAState createState() => _ScoreboardCricketSAState();
+  State<ScoreboardCricketSA> createState() => _ScoreboardCricketSAState();
 }
 
 class _ScoreboardCricketSAState extends State<ScoreboardCricketSA> {
-  Map<int, int> p1Marks = {for (var v in [20,19,18,17,16,15,25]) v: 0};
-  Map<int, int> p2Marks = {for (var v in [20,19,18,17,16,15,25]) v: 0};
-  int p1Score = 0;
-  int p2Score = 0;
-  bool isP1Turn = true;
-  List<String> history = [];
+  final CricketSALogic _logic = CricketSALogic();
+  final List<String> _history = [];
 
   void _handleTap(TapDownDetails details) {
-    final hit = DartMath.getHit(details.localPosition.dx, details.localPosition.dy, 300);
+    final hit = DartMath.calculate(details.localPosition.dx, details.localPosition.dy);
+
     setState(() {
-      if (hit.isGaryPlayer) {
-        history.insert(0, "GARY PLAYER (0)");
+      if (hit.isMiss) {
+        _history.insert(0, "🔴 GARY PLAYER MISS (Wire / Outer)");
       } else {
-        _applyCricketLogic(hit);
-        history.insert(0, "${isP1Turn ? 'P1' : 'P2'} hit ${hit.multiplier}x${hit.score}");
+        final playerName = _logic.isP1Turn ? "P1" : "P2";
+        _logic.registerHit(hit.score, hit.multiplier, isP1: _logic.isP1Turn);
+
+        if (hit.score == 25 || hit.score == 50) {
+          _history.insert(0, "$playerName hit ${hit.score} (${hit.ring})");
+        } else {
+          _history.insert(0, "$playerName hit ${hit.multiplier}x${hit.score}");
+        }
       }
     });
   }
 
-  void _applyCricketLogic(DartHit hit) {
-    if (![20,19,18,17,16,15,25].contains(hit.score)) return;
-    var marks = isP1Turn ? p1Marks : p2Marks;
-    var oppMarks = isP1Turn ? p2Marks : p1Marks;
-    
-    for (int i = 0; i < hit.multiplier; i++) {
-      if (marks[hit.score]! < 3) {
-        marks[hit.score] = marks[hit.score]! + 1;
-      } else if (oppMarks[hit.score]! < 3) {
-        if (isP1Turn) p1Score += hit.score; else p2Score += hit.score;
-      }
-    }
-  }
-
-  String _getMarkSym(int marks) {
-    if (marks == 1) return "/";
-    if (marks == 2) return "X";
-    if (marks >= 3) return "";
-    return "";
+  String _getMarkSymbol(int number, bool forP1) {
+    return _logic.getMarkSymbol(number, forP1);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF1A1A1A),
+      backgroundColor: const Color(0xFF1A1A1A),
+      appBar: AppBar(
+        title: const Text("CRICKET (SA Rules)"),
+        backgroundColor: const Color(0xFF262626),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                _logic.reset();
+                _history.clear();
+              });
+            },
+          ),
+        ],
+      ),
       body: Row(
         children: [
-          Expanded(child: Center(
-            child: GestureDetector(
-              onTapDown: _handleTap,
-              child: Image.asset('assets/dartboard.png', width: 300),
+          // Dartboard - Click to Score
+          Expanded(
+            child: Center(
+              child: GestureDetector(
+                onTapDown: _handleTap,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white24, width: 2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Image.asset(
+                    'assets/dartboard.png',
+                    width: 300,
+                    height: 300,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
             ),
-          )),
+          ),
+
+          // Scoreboard Panel
           Container(
-            width: 300,
-            color: Color(0xFF262626),
+            width: 320,
+            color: const Color(0xFF262626),
+            padding: const EdgeInsets.all(16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("P1: $p1Score | P2: $p2Score", style: TextStyle(color: Colors.orange, fontSize: 24)),
-                ...[20,19,18,17,16,15,25].map((val) => Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                // Total Scores
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildPlayerScore("P1", _logic.p1Score, _logic.isP1Turn),
+                      const Text("VS", style: TextStyle(color: Colors.white54, fontSize: 18)),
+                      _buildPlayerScore("P2", _logic.p2Score, !_logic.isP1Turn),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Cricket Numbers + Marks
+                const Text(
+                  "NUMBERS",
+                  style: TextStyle(color: Colors.orange, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                ...[20, 19, 18, 17, 16, 15, 25].map((val) => _buildNumberRow(val)),
+
+                const SizedBox(height: 20),
+
+                // History
+                const Text(
+                  "HISTORY",
+                  style: TextStyle(color: Colors.orange, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    reverse: true,
+                    itemCount: _history.length,
+                    itemBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(
+                        _history[index],
+                        style: const TextStyle(color: Colors.green, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Controls
+                Row(
                   children: [
-                    Text(_getMarkSym(p1Marks[val]!), style: TextStyle(color: Colors.white, fontSize: 30)),
-                    Text(val == 25 ? "BULL" : "$val", style: TextStyle(color: Colors.orange, fontSize: 20)),
-                    Text(_getMarkSym(p2Marks[val]!), style: TextStyle(color: Colors.white, fontSize: 30)),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _logic.isP1Turn = !_logic.isP1Turn;
+                          });
+                        },
+                        child: Text("NEXT PLAYER (${_logic.isP1Turn ? 'P1' : 'P2'})"),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _logic.reset();
+                          _history.clear();
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                      child: const Text("RESET"),
+                    ),
                   ],
-                )),
-                Expanded(child: ListView(children: history.map((e) => Text(e, style: TextStyle(color: Colors.green))).toList())),
-                ElevatedButton(onPressed: () => setState(() => isP1Turn = !isP1Turn), child: Text("NEXT PLAYER")),
+                ),
               ],
             ),
-          )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlayerScore(String label, int score, bool isActive) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isActive ? Colors.orange : Colors.white70,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          "$score",
+          style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNumberRow(int val) {
+    final display = val == 25 ? "BULL" : "$val";
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Text(
+            _getMarkSymbol(val, true),
+            style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            display,
+            style: const TextStyle(color: Colors.orange, fontSize: 22, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            _getMarkSymbol(val, false),
+            style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
