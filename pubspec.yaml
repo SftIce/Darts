@@ -1,28 +1,26 @@
 name: darts_scoring_app
-description: "Professional Darts Scoring Suite - SA Edition"
-publish_to: 'none'
+description: A Flutter app for darts scoring (Cricket SA, 501, and more).
+publish_to: 'none' # Remove this line if you want to publish to pub.dev
+
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.5
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  # Added for the professional typography in your mockups
-  google_fonts: ^6.1.0 
+
+  # Add any other dependencies you need here
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true
 
-  # This registers your images. 
-  # Ensure you have a folder named 'assets' in your main project folder.
   assets:
     - assets/dartboard.png
-    - assets/wall_texture.jpg
