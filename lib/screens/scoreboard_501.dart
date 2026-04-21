@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../logic/logic_501.dart';
 import '../widgets/dartboard_widget.dart';
+import '../widgets/player_stats_panel.dart';
 
 class Scoreboard501 extends StatefulWidget {
   final Logic501 logic501;
@@ -16,6 +17,20 @@ class _Scoreboard501State extends State<Scoreboard501> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('501')),
+      drawer: PlayerStatsPanel(
+        playerName: 'Mark',
+        gamesPlayed: 42,
+        winRate: 62,
+        highScore: 140,
+        threeDartAverage: 54.7,
+        recentMatches: [
+          {'game': 'Cricket SA', 'result': 'Won 192 - 165'},
+          {'game': '501', 'result': 'Lost 34 - 0'},
+          {'game': 'Shanghai', 'result': 'Won 72 - 65'},
+          {'game': 'Around the Clock', 'result': 'Won 20 - 18'},
+          {'game': 'Killer', 'result': 'Lost – Eliminated'},
+        ],
+      ),
       body: Row(
         children: [
           // Dartboard on the left
