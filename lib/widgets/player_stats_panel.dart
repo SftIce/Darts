@@ -28,7 +28,7 @@ class PlayerStatsPanel extends StatelessWidget {
           DrawerHeader(
             decoration: const BoxDecoration(color: Colors.blueGrey),
             child: Text(
-              'Player Stats: ',
+              'Player Stats: $playerName',
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -36,11 +36,12 @@ class PlayerStatsPanel extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(title: Text('Games Played: ')),
-          ListTile(title: Text('Win Rate: %')),
-          ListTile(title: Text('High Score: ')),
+          ListTile(title: Text('Games Played: $gamesPlayed')),
+          ListTile(title: Text('Win Rate: ${winRate.toStringAsFixed(1)}%')),
+          ListTile(title: Text('High Score: $highScore')),
           ListTile(
-              title: Text('3-Dart Average: ')),
+              title: Text(
+                  '3‑Dart Average: ${threeDartAverage.toStringAsFixed(1)}')),
           const Divider(),
           const Padding(
             padding: EdgeInsets.all(8.0),

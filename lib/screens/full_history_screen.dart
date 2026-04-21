@@ -13,7 +13,9 @@ class FullHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(' - Full History')),
+      appBar: AppBar(
+        title: Text('$playerName - Full History'),
+      ),
       body: ListView.builder(
         itemCount: matchHistory.length,
         itemBuilder: (context, index) {
@@ -22,12 +24,12 @@ class FullHistoryScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: ListTile(
               title: Text(match['game'] ?? ''),
-              subtitle: Text('Result: '),
+              subtitle: Text('Result: ${match['result']}'),
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Score: '),
-                  Text('Date: '),
+                  Text('Score: ${match['score'] ?? ''}'),
+                  Text('Date: ${match['date'] ?? ''}'),
                 ],
               ),
             ),
