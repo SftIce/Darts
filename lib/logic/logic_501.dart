@@ -1,14 +1,21 @@
 class Logic501 {
-  int p1Score = 501;
-  int p2Score = 501;
-  bool isP1Turn = true;
+  int player1Score = 501;
+  int player2Score = 501;
+  String currentPlayer = 'P1';
 
-  void submitScore(int points) {
-    if (isP1Turn) {
-      if (p1Score - points >= 0) p1Score -= points;
+  void registerHit(String player, int value, int multiplier) {
+    int hitValue = value * multiplier;
+    if (player == 'P1') {
+      player1Score -= hitValue;
+      if (player1Score < 0) player1Score += hitValue; // bust
     } else {
-      if (p2Score - points >= 0) p2Score -= points;
+      player2Score -= hitValue;
+      if (player2Score < 0) player2Score += hitValue; // bust
     }
-    isP1Turn = !isP1Turn;
+  }
+
+  bool checkWin(String player, int multiplier) {
+    int score = player == 'P1' ? player1Score : player2Score;
+    return score == 0 && multiplier == 2; // must finish on double
   }
 }
