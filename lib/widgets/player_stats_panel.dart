@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+
+class PlayerStatsPanel extends StatelessWidget {
+  final String playerName;
+  final int gamesPlayed;
+  final double winRate;
+  final int highScore;
+  final double threeDartAverage;
+  final List<Map<String, String>> recentMatches;
+
+  const PlayerStatsPanel({
+    Key? key,
+    required this.playerName,
+    required this.gamesPlayed,
+    required this.winRate,
+    required this.highScore,
+    required this.threeDartAverage,
+    required this.recentMatches,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(color: Colors.blueGrey),
+            child: Text(
+              'Player Stats: $playerName',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Games Played: $gamesPlayed'),
+          ),
+          ListTile(
+            title: Text('Win Rate: ${winRate.toStringAsFixed(1)}%'),
+          ),
+          ListTile(
+            title: Text('High Score: $highScore'),
+          ),
+          ListTile(
+            title: Text('3‑Dart Average: ${threeDartAverage.toStringAsFixed(1)}'),
+          ),
+          const Divider(),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Recent Matches',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: recentMatches.length,
+              itemBuilder: (context, index) {
+                final match = recentMatches[index];
+                return ListTile(
+                  title: Text(match['game'] ?? ''),
+                  subtitle: Text(match['result'] ?? ''),
+                );
+              },
+            ),
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Navigate to full history screen
+                  },
+                  child: const Text('View Full History'),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Close'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
