@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
-import 'game_selection.dart';
+import 'logic/cricket_sa_logic.dart';
+import 'screens/cricket_sa_layout.dart';
 
 void main() {
-  runApp(const DartsApp());
+  final player1 = CricketSAPlayer('Player 1');
+  final player2 = CricketSAPlayer('Player 2');
+  final game = CricketSAGame(player1, player2);
+
+  runApp(MyApp(game: game));
 }
 
-class DartsApp extends StatelessWidget {
-  const DartsApp({Key? key}) : super(key: key);
+class MyApp extends StatelessWidget {
+  final CricketSAGame game;
+  const MyApp({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Darts Scoring',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const GameSelectionScreen(),
+      theme: ThemeData.dark(),
+      home: CricketSALayout(game: game),
     );
   }
 }

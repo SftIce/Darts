@@ -1,85 +1,72 @@
 import 'package:flutter/material.dart';
 import '../logic/cricket_sa_logic.dart';
-import '../widgets/dartboard_widget.dart';
-import '../widgets/player_stats_panel.dart';
 
-class ScoreboardCricketSA extends StatefulWidget {
-  final CricketSALogic cricketLogic;
+class ScoreboardCricketSA extends StatelessWidget {
+  final CricketSAGame game;
+  const ScoreboardCricketSA({super.key, required this.game});
 
-  const ScoreboardCricketSA({Key? key, required this.cricketLogic})
-      : super(key: key);
+  final List<int> targets = [20,19,18,17,16,15,14,13,12,11,10,25];
 
-  @override
-  _ScoreboardCricketSAState createState() => _ScoreboardCricketSAState();
-}
+  TextStyle chalkStyle(double size) => TextStyle(
+    fontFamily: 'ChalkFont',
+    color: Colors.white,
+    fontSize: size,
+    shadows: [
+      Shadow(
+        blurRadius: 2,
+        color: Colors.white24,
+        offset: Offset(1,1),
+      )
+    ],
+  );
 
-class _ScoreboardCricketSAState extends State<ScoreboardCricketSA> {
+  Widget buildMarks(int count) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (i) => Text(i < count ? 'X' : '', style: chalkStyle(20))),
+    );
+  }
+
+  TableRow buildRow(int number) {
+    final p1Marks = game.player1.marks[number] ?? 0;
+    final p2Marks = game.player2.marks[number] ?? 0;
+    final p1Score = game.player1.score[number] ?? 0;
+    final p2Score = game.player2.score[number] ?? 0;
+
+    return TableRow(children: [
+      buildMarks(p1Marks),
+      Center(child: Text(number == 25 ? 'Bull' : number.toString(), style: chalkStyle(20))),
+      buildMarks(p2Marks),
+      Center(child: Text(p1Score.toString(), style: chalkStyle(20))),
+      Center(child: Text(p2Score.toString(), style: chalkStyle(20))),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Cricket SA')),
-      drawer: PlayerStatsPanel(
-        playerName: 'Mark',
-        gamesPlayed: 42,
-        winRate: 62,
-        highScore: 140,
-        threeDartAverage: 54.7,
-        recentMatches: [
-          {'game': 'Cricket SA', 'result': 'Won 192 - 165'},
-          {'game': '501', 'result': 'Lost 34 - 0'},
-          {'game': 'Shanghai', 'result': 'Won 72 - 65'},
-          {'game': 'Around the Clock', 'result': 'Won 20 - 18'},
-          {'game': 'Killer', 'result': 'Lost – Eliminated'},
-        ],
-      ),
-      body: Row(
-        children: [
-          // Dartboard on the left
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: DartboardWidget(
-                cricketLogic: widget.cricketLogic,
-                size: 400,
-              ),
-            ),
-          ),
-          // Scoreboard on the right
-          Expanded(
-            flex: 3,
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                Text(
-                  'Player 1: ${widget.cricketLogic.player1Score}',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                Text(
-                  'Player 2: ${widget.cricketLogic.player2Score}',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: widget.cricketLogic.targets.length,
-                    itemBuilder: (context, index) {
-                      final target = widget.cricketLogic.targets[index];
-                      final marksP1 =
-                          widget.cricketLogic.player1Marks[target] ?? '';
-                      final marksP2 =
-                          widget.cricketLogic.player2Marks[target] ?? '';
-                      return ListTile(
-                        title: Text('Target $target'),
-                        subtitle: Text('P1: $marksP1   |   P2: $marksP2'),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    final p1Total = game.totalScore(game.player1);
+    final p2Total = game.totalScore(game.player2);
+    final diff = p1Total - p2Total;
+
+    return Table(
+      border: TableBorder.all(color: Colors.white54),
+      children: [
+        TableRow(children: [
+          Center(child: Text(game.player1.name, style: chalkStyle(22))),
+          Center(child: Text('Target', style: chalkStyle(22))),
+          Center(child: Text(game.player2.name, style: chalkStyle(22))),
+          Center(child: Text('Score P1', style: chalkStyle(22))),
+          Center(child: Text('Score P2', style: chalkStyle(22))),
+        ]),
+        ...targets.map((n) => buildRow(n)).toList(),
+        TableRow(children: [
+          Center(child: Text(p1Total.toString(), style: chalkStyle(24))),
+          Center(child: Text('TOTAL', style: chalkStyle(24))),
+          Center(child: Text(p2Total.toString(), style: chalkStyle(24))),
+          Center(child: Text('Winning by: ', style: chalkStyle(18))),
+          Center(child: Text('Losing by: ', style: chalkStyle(18))),
+        ])
+      ],
     );
   }
 }
