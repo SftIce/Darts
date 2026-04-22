@@ -9,8 +9,8 @@ class PlayerStats extends StatelessWidget {
   final double average;
   final List<Map<String, dynamic>> recentMatches;
 
-  const PlayerStats({
-    super.key,
+  PlayerStats({
+    Key? key,
     required this.playerName,
     required this.profileImage,
     required this.gamesPlayed,
@@ -18,7 +18,7 @@ class PlayerStats extends StatelessWidget {
     required this.highScore,
     required this.average,
     required this.recentMatches,
-  });
+  }) : super(key: key);
 
   TextStyle chalkStyle(double size) => TextStyle(
     fontFamily: 'ChalkFont',
@@ -39,7 +39,11 @@ class PlayerStats extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          CircleAvatar(backgroundImage: AssetImage(profileImage), radius: 40),
+          CircleAvatar(
+            // Fallback icon if the image asset is not loaded yet
+            child: Icon(Icons.person, size: 40), 
+            radius: 40
+          ),
           const SizedBox(width: 16),
           Text(playerName, style: chalkStyle(28)),
         ]),

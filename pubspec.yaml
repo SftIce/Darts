@@ -1,17 +1,17 @@
 name: darts_scoring_app
 description: A Flutter app for darts scoring (Cricket SA, 501, and more).
-publish_to: 'none' # Remove this line if you want to publish to pub.dev
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0" # Increased upper bound to support modern Flutter 3.x
 
 dependencies:
   flutter:
     sdk: flutter
-
-  # Add any other dependencies you need here
+  sqflite: ^2.3.0
+  path: ^1.8.3
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
@@ -21,8 +21,11 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
   assets:
+    - assets/dartboard.png
     - assets/images/profile.png
+
   fonts:
     - family: ChalkFont
       fonts:
